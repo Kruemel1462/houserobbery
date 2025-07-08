@@ -349,8 +349,8 @@ AddEventHandler('houserobbery:policeDispatch', function(coords)
     if not PlayerData.job or PlayerData.job.name ~= 'police' then return end
 
     lib.notify({
-        title = 'Einsatz',
-        description = 'Ein möglicher Hausraub wurde gemeldet!',
+        title = 'Verdächtige Handlungen',
+        description = 'Eine auffällige Person wurde gemeldet !',
         type = 'warning'
     })
 
