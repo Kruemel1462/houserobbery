@@ -1,5 +1,7 @@
 local robbedHouses = {}
 local Framework = nil
+local houseMap = {}
+local dataFile = 'robbed_houses.json'
 
 -- Framework Detection
 CreateThread(function()
@@ -11,6 +13,43 @@ CreateThread(function()
         QBCore = exports['qb-core']:GetCoreObject()
     end
 end)
+
+-- Build house lookup table and load persistent data
+CreateThread(function()
+    for _, house in pairs(Config.Houses) do
+        houseMap[house.id] = house
+    end
+    LoadRobbedHouses()
+end)
+
+-- Save robbed houses to file
+function SaveRobbedHouses()
+    SaveResourceFile(GetCurrentResourceName(), dataFile, json.encode(robbedHouses), -1)
+end
+
+-- Load robbed houses from file
+function LoadRobbedHouses()
+    local data = LoadResourceFile(GetCurrentResourceName(), dataFile)
+    if not data then return end
+
+    local decoded = json.decode(data)
+    if not decoded then return end
+
+    for id, expire in pairs(decoded) do
+        if expire > os.time() then
+            robbedHouses[id] = expire
+
+            local remaining = (expire - os.time()) * 1000
+            SetTimeout(remaining, function()
+                robbedHouses[id] = nil
+                TriggerClientEvent('houserobbery:houseReset', -1, id)
+                SaveRobbedHouses()
+            end)
+        end
+    end
+
+    TriggerClientEvent('houserobbery:updateRobbedHouses', -1, robbedHouses)
+end
 
 -- Get player from source
 function GetPlayer(source)
@@ -131,6 +170,32 @@ AddEventHandler('houserobbery:getRobbedHouses', function()
     TriggerClientEvent('houserobbery:updateRobbedHouses', source, robbedHouses)
 end)
 
+-- Notify police with approximate robbery location
+RegisterNetEvent('houserobbery:notifyPolice')
+AddEventHandler('houserobbery:notifyPolice', function(coords)
+    local offset = vector3(
+        coords.x + math.random(-30, 30),
+        coords.y + math.random(-30, 30),
+        coords.z
+    )
+
+    for _, playerId in pairs(GetPlayers()) do
+        local player = GetPlayer(playerId)
+        if player then
+            local jobName
+            if Framework == 'esx' and player.job then
+                jobName = player.job.name
+            elseif Framework == 'qb' and player.PlayerData.job then
+                jobName = player.PlayerData.job.name
+            end
+
+            if jobName == 'police' then
+                TriggerClientEvent('houserobbery:policeDispatch', playerId, offset)
+            end
+        end
+    end
+end)
+
 -- Event to complete robbery
 RegisterNetEvent('houserobbery:completeRobbery')
 AddEventHandler('houserobbery:completeRobbery', function(houseId)
@@ -142,20 +207,14 @@ AddEventHandler('houserobbery:completeRobbery', function(houseId)
     end
     
     -- Check if house exists in config
-    local house = nil
-    for _, configHouse in pairs(Config.Houses) do
-        if configHouse.id == houseId then
-            house = configHouse
-            break
-        end
-    end
+    local house = houseMap[houseId]
     
     if not house then
         return
     end
     
     -- Check if house is already robbed
-    if robbedHouses[houseId] and robbedHouses[houseId] > GetGameTimer() then
+    if robbedHouses[houseId] and robbedHouses[houseId] > os.time() then
         TriggerClientEvent('ox_lib:notify', source, {
             title = 'Robbery',
             description = 'Dieses Haus wurde bereits ausgeraubt!',
@@ -163,17 +222,19 @@ AddEventHandler('houserobbery:completeRobbery', function(houseId)
         })
         return
     end
-    
+
     -- Mark house as robbed
-    robbedHouses[houseId] = GetGameTimer() + Config.CooldownTime
-    
+    robbedHouses[houseId] = os.time() + (Config.CooldownTime / 1000)
+    SaveRobbedHouses()
+
     -- Update all clients
     TriggerClientEvent('houserobbery:updateRobbedHouses', -1, robbedHouses)
-    
+
     -- Set timer to reset house
     SetTimeout(Config.CooldownTime, function()
         robbedHouses[houseId] = nil
         TriggerClientEvent('houserobbery:houseReset', -1, houseId)
+        SaveRobbedHouses()
     end)
     
     -- Log robbery
@@ -271,6 +332,7 @@ RegisterCommand('resethouse', function(source, args, rawCommand)
             local houseId = args[1]
             robbedHouses[houseId] = nil
             TriggerClientEvent('houserobbery:houseReset', -1, houseId)
+            SaveRobbedHouses()
             
             if source == 0 then
                 print('House ' .. houseId .. ' has been reset.')
@@ -299,6 +361,7 @@ RegisterCommand('resetallhouses', function(source, args, rawCommand)
     if source == 0 or IsPlayerAceAllowed(source, 'houserobbery.admin') then
         robbedHouses = {}
         TriggerClientEvent('houserobbery:updateRobbedHouses', -1, robbedHouses)
+        SaveRobbedHouses()
         
         if source == 0 then
             print('All houses have been reset.')

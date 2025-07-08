@@ -20,9 +20,8 @@ Config.Houses = {
         coords = vector3(-14.23, -1442.19, 31.10),
         size = vector3(2.0, 2.0, 2.0),
         rotation = 45.0,
+        -- Haus kann ausgeraubt werden
         robbable = true,
-        robbed = false,
-        lastRobbed = 0,
         loot = {
             -- Spezifischer Loot für dieses Haus (garantiert wenn Chance erfüllt)
             {item = 'money', amount = {min = 100, max = 500}, chance = 80, type = 'specific'},
@@ -37,8 +36,6 @@ Config.Houses = {
         size = vector3(3.0, 3.0, 3.0),
         rotation = 0.0,
         robbable = true,
-        robbed = false,
-        lastRobbed = 0,
         loot = {
             -- Spezifischer Loot für diese Villa (hochwertige Items)
             {item = 'money', amount = {min = 200, max = 1000}, chance = 90, type = 'specific'},
@@ -54,8 +51,6 @@ Config.Houses = {
         size = vector3(2.5, 2.5, 2.5),
         rotation = 25.0,
         robbable = true,
-        robbed = false,
-        lastRobbed = 0,
         loot = {
             -- Spezifischer Loot für dieses Apartment
             {item = 'money', amount = {min = 150, max = 750}, chance = 85, type = 'specific'},

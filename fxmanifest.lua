@@ -1,7 +1,7 @@
 fx_version 'cerulean'
 game 'gta5'
 
-author 'Your Name'
+author "HouseRobbery"
 description 'House Robbery Script with ox_lib zones'
 version '1.0.0'
 
@@ -18,8 +18,3 @@ server_scripts {
     'server/main.lua'
 }
 
-dependencies {
-    'ox_lib'
-}
-
-lua54 'yes'
