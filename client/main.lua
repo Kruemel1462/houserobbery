@@ -148,10 +148,10 @@ function checkPoliceAndStartRobbery(house)
         lib.hideTextUI()
         TriggerServerEvent('houserobbery:notifyPolice', house.coords)
         
-        -- Remove required item
-        if Config.RequiredItem and Config.RequiredItem ~= '' then
-            TriggerServerEvent('houserobbery:removeItem', Config.RequiredItem, 1)
-        end
+        -- -- Remove required item
+        -- if Config.RequiredItem and Config.RequiredItem ~= '' then
+        --     TriggerServerEvent('houserobbery:removeItem', Config.RequiredItem, 1)
+        -- end
         
         -- Show progress bar
         if lib.progressBar({
