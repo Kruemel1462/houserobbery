@@ -8,7 +8,9 @@ Ein performantes FiveM Script zum Ausrauben von Häusern mit ox_lib Integration.
 - **Interaktive Context Menus** - Elegante Loot-Auswahl mit ox_lib
 - **Framework Support** - ESX, QB-Core und Standalone
 - **Cooldown System** - Verhindert Spam-Raubüberfälle
+- **Persistente Cooldowns** - Raubstatus bleibt nach Neustart erhalten
 - **Polizei Requirement** - Mindestanzahl Polizisten erforderlich
+- **Polizei Dispatch** - Versetzter Blip alarmiert Cops bei laufendem Raub
 - **Customizable Loot** - Konfigurierbare Gegenstände mit Wahrscheinlichkeiten
 - **Admin Commands** - Einfache Verwaltung für Admins
 - **Discord Integration** - Optional Webhook Benachrichtigungen
@@ -48,8 +50,6 @@ Bearbeite `config.lua` um neue Häuser hinzuzufügen oder bestehende zu ändern:
     size = vector3(2.0, 2.0, 2.0),
     rotation = 0.0,
     robbable = true,
-    robbed = false,
-    lastRobbed = 0,
     loot = {
         {item = 'money', amount = {min = 100, max = 500}, chance = 80},
         {item = 'phone', amount = {min = 1, max = 1}, chance = 30}
@@ -106,11 +106,13 @@ Config.DiscordWebhook = "https://discord.com/api/webhooks/YOUR_WEBHOOK_URL"
 ### Client Events:
 - `houserobbery:updateRobbedHouses` - Update ausgeraubte Häuser
 - `houserobbery:houseReset` - Haus zurückgesetzt
+- `houserobbery:policeDispatch` - Blip für Polizisten
 
 ### Server Events:
 - `houserobbery:completeRobbery` - Raub abschließen
 - `houserobbery:giveLoot` - Loot an Spieler geben
 - `houserobbery:removeItem` - Item von Spieler entfernen
+- `houserobbery:notifyPolice` - Polizeidienst benachrichtigen
 
 ## 🛠️ Anpassungen
 
@@ -152,6 +154,10 @@ Bei Problemen oder Fragen:
 - Überprüfe die Console auf Fehlermeldungen
 - Stelle sicher dass alle Dependencies installiert sind
 - Teste mit Standalone Mode ohne Framework
+
+## Lizenz
+
+Dieses Projekt steht unter der [MIT Lizenz](LICENSE).
 
 ---
 

@@ -1,6 +1,7 @@
 local robberyZones = {}
 local isRobbing = false
 local robbedHouses = {}
+local houseMap = {}
 
 -- ESX/QB-Core Integration (optional)
 local Framework = nil
@@ -53,6 +54,7 @@ CreateThread(function()
     
     for _, house in pairs(Config.Houses) do
         if house and house.id and house.coords then
+            houseMap[house.id] = house
             createRobberyZone(house)
             if Config.ShowBlips then
                 createHouseBlip(house)
@@ -76,15 +78,7 @@ function createRobberyZone(house)
         debug = false, -- Set to true for debugging
         onEnter = function()
             if not isRobbing and not robbedHouses[house.id] then
-                -- lib.showTextUI('Drücke [E] um das Haus auszurauben', {
-                --     position = "top-center",
-                --     icon = 'fa-solid fa-mask',
-                --     style = {
-                --         borderRadius = 10,
-                --         backgroundColor = '#1a1a1a',
-                --         color = 'white'
-                --     }
-                -- })
+                -- optional: show hint to players here
             end
         end,
         onExit = function()
@@ -152,6 +146,7 @@ function checkPoliceAndStartRobbery(house)
         -- Start robbery
         isRobbing = true
         lib.hideTextUI()
+        TriggerServerEvent('houserobbery:notifyPolice', house.coords)
         
         -- Remove required item
         if Config.RequiredItem and Config.RequiredItem ~= '' then
@@ -197,13 +192,7 @@ function completeRobbery(house)
     local generatedLoot = {}
     
     -- Find the house configuration
-    local houseConfig = nil
-    for _, configHouse in pairs(Config.Houses) do
-        if configHouse.id == house.id then
-            houseConfig = configHouse
-            break
-        end
-    end
+    local houseConfig = houseMap[house.id]
     
     -- Add specific loot for this house
     if houseConfig and houseConfig.loot then
@@ -287,33 +276,27 @@ function showLootMenu(loot, houseName)
     for i, item in pairs(loot) do
         local icon = 'fa-solid fa-hand-holding-dollar'
         local iconColor = 'white'
-        local rarityText = ''
         
         -- Set icon and color based on rarity
         if item.rarity == 'specific' then
             icon = 'fa-solid fa-star'
             iconColor = 'gold'
-            rarityText = ' [SPEZIFISCH]'
         elseif item.rarity == 'common' then
             icon = 'fa-solid fa-circle'
             iconColor = 'gray'
-            rarityText = ' [HÄUFIG]'
         elseif item.rarity == 'rare' then
             icon = 'fa-solid fa-gem'
             iconColor = 'blue'
-            rarityText = ' [SELTEN]'
         elseif item.rarity == 'epic' then
             icon = 'fa-solid fa-crown'
             iconColor = 'purple'
-            rarityText = ' [EPISCH]'
         elseif item.rarity == 'legendary' then
             icon = 'fa-solid fa-trophy'
             iconColor = 'orange'
-            rarityText = ' [LEGENDÄR]'
         end
-        
+
         table.insert(options, {
-            title = item.label .. ' (x' .. item.amount .. ')' .. rarityText,
+            title = item.label .. ' (x' .. item.amount .. ')',
             description = item.description,
             icon = icon,
             iconColor = iconColor,
@@ -359,6 +342,23 @@ end
 RegisterNetEvent('houserobbery:updateRobbedHouses')
 AddEventHandler('houserobbery:updateRobbedHouses', function(houses)
     robbedHouses = houses
+end)
+
+RegisterNetEvent('houserobbery:policeDispatch')
+AddEventHandler('houserobbery:policeDispatch', function(coords)
+    if not PlayerData.job or PlayerData.job.name ~= 'police' then return end
+
+    local blip = AddBlipForCoord(coords.x, coords.y, coords.z)
+    SetBlipSprite(blip, 161)
+    SetBlipScale(blip, 1.2)
+    SetBlipColour(blip, 1)
+    BeginTextCommandSetBlipName('STRING')
+    AddTextComponentString('Verdächtige Aktivität')
+    EndTextCommandSetBlipName(blip)
+
+    SetTimeout(60000, function()
+        RemoveBlip(blip)
+    end)
 end)
 
 RegisterNetEvent('houserobbery:houseReset')
