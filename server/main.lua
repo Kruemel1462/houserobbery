@@ -24,6 +24,18 @@ end
 
 -- Add item to player
 function AddItem(player, item, amount)
+    -- Check for ox_inventory first
+    if GetResourceState('ox_inventory') == 'started' then
+        if item == 'money' then
+            -- Handle money separately for ox_inventory
+            exports.ox_inventory:AddItem(player.source or player, 'money', amount)
+        else
+            exports.ox_inventory:AddItem(player.source or player, item, amount)
+        end
+        return
+    end
+    
+    -- Fallback to framework inventory
     if Framework == 'esx' then
         if item == 'money' then
             player.addMoney(amount)
@@ -41,6 +53,13 @@ end
 
 -- Remove item from player
 function RemoveItem(player, item, amount)
+    -- Check for ox_inventory first
+    if GetResourceState('ox_inventory') == 'started' then
+        exports.ox_inventory:RemoveItem(player.source or player, item, amount)
+        return
+    end
+    
+    -- Fallback to framework inventory
     if Framework == 'esx' then
         player.removeInventoryItem(item, amount)
     elseif Framework == 'qb' then
@@ -74,6 +93,35 @@ end
 -- Callback to get police count
 lib.callback.register('houserobbery:getPoliceCount', function(source)
     return GetPoliceCount()
+end)
+
+-- Callback to check if player has required item
+lib.callback.register('houserobbery:hasRequiredItem', function(source, item)
+    if not item or item == '' then
+        return true -- No item required
+    end
+    
+    local player = GetPlayer(source)
+    if not player then
+        return false
+    end
+    
+    -- Check for ox_inventory
+    if GetResourceState('ox_inventory') == 'started' then
+        local count = exports.ox_inventory:GetItemCount(source, item)
+        return count and count > 0
+    end
+    
+    -- Fallback to framework inventory
+    if Framework == 'esx' then
+        local item = player.getInventoryItem(item)
+        return item and item.count > 0
+    elseif Framework == 'qb' then
+        local item = player.Functions.GetItemByName(item)
+        return item and item.amount > 0
+    end
+    
+    return false
 end)
 
 -- Event to get robbed houses
@@ -144,8 +192,23 @@ end)
 RegisterNetEvent('houserobbery:giveLoot')
 AddEventHandler('houserobbery:giveLoot', function(item, amount)
     local source = source
-    local player = GetPlayer(source)
     
+    -- Check for ox_inventory first
+    if GetResourceState('ox_inventory') == 'started' then
+        if item == 'money' then
+            exports.ox_inventory:AddItem(source, 'money', amount)
+        else
+            exports.ox_inventory:AddItem(source, item, amount)
+        end
+        
+        -- Log loot
+        print(string.format('[House Robbery] Player %s (%s) received %dx %s', 
+              GetPlayerName(source), source, amount, item))
+        return
+    end
+    
+    -- Fallback to framework
+    local player = GetPlayer(source)
     if not player then
         return
     end
@@ -161,8 +224,15 @@ end)
 RegisterNetEvent('houserobbery:removeItem')
 AddEventHandler('houserobbery:removeItem', function(item, amount)
     local source = source
-    local player = GetPlayer(source)
     
+    -- Check for ox_inventory first
+    if GetResourceState('ox_inventory') == 'started' then
+        exports.ox_inventory:RemoveItem(source, item, amount)
+        return
+    end
+    
+    -- Fallback to framework
+    local player = GetPlayer(source)
     if not player then
         return
     end

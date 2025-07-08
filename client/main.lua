@@ -43,10 +43,23 @@ end)
 CreateThread(function()
     Wait(1000) -- Wait for ox_lib to load
     
+    -- Check if Config is loaded
+    if not Config or not Config.Houses then
+        print('[HouseRobbery] ERROR: Config not loaded properly!')
+        return
+    end
+    
+    print('[HouseRobbery] Loading ' .. #Config.Houses .. ' houses...')
+    
     for _, house in pairs(Config.Houses) do
-        createRobberyZone(house)
-        if Config.ShowBlips then
-            createHouseBlip(house)
+        if house and house.id and house.coords then
+            createRobberyZone(house)
+            if Config.ShowBlips then
+                createHouseBlip(house)
+            end
+            print('[HouseRobbery] Loaded house: ' .. tostring(house.id))
+        else
+            print('[HouseRobbery] ERROR: Invalid house configuration!')
         end
     end
     
@@ -63,15 +76,15 @@ function createRobberyZone(house)
         debug = false, -- Set to true for debugging
         onEnter = function()
             if not isRobbing and not robbedHouses[house.id] then
-                lib.showTextUI('Drücke [E] um das Haus auszurauben', {
-                    position = "top-center",
-                    icon = 'fa-solid fa-mask',
-                    style = {
-                        borderRadius = 10,
-                        backgroundColor = '#1a1a1a',
-                        color = 'white'
-                    }
-                })
+                -- lib.showTextUI('Drücke [E] um das Haus auszurauben', {
+                --     position = "top-center",
+                --     icon = 'fa-solid fa-mask',
+                --     style = {
+                --         borderRadius = 10,
+                --         backgroundColor = '#1a1a1a',
+                --         color = 'white'
+                --     }
+                -- })
             end
         end,
         onExit = function()
@@ -103,29 +116,28 @@ end
 -- Start robbery process
 function startRobbery(house)
     -- Check if item is required
-    if Config.RequiredItem then
-        local hasItem = false
-        if Framework == 'esx' then
-            local item = ESX.SearchInventory(Config.RequiredItem, 1)
-            hasItem = item and item > 0
-        elseif Framework == 'qb' then
-            local item = QBCore.Functions.HasItem(Config.RequiredItem)
-            hasItem = item ~= nil
-        else
-            -- For standalone, assume player has item
-            hasItem = true
-        end
-        
-        if not hasItem then
-            lib.notify({
-                title = 'Robbery',
-                description = 'Du benötigst einen ' .. Config.RequiredItem .. ' um dieses Haus auszurauben!',
-                type = 'error'
-            })
-            return
-        end
+    if Config.RequiredItem and Config.RequiredItem ~= '' then
+        lib.callback('houserobbery:hasRequiredItem', false, function(hasItem)
+            if not hasItem then
+                lib.notify({
+                    title = 'Robbery',
+                    description = 'Du benötigst einen ' .. tostring(Config.RequiredItem) .. ' um dieses Haus auszurauben!',
+                    type = 'error'
+                })
+                return
+            end
+            
+            -- Continue with police check if item requirement is met
+            checkPoliceAndStartRobbery(house)
+        end, Config.RequiredItem)
+    else
+        -- No item required, continue with police check
+        checkPoliceAndStartRobbery(house)
     end
-    
+end
+
+-- Check police count and start robbery
+function checkPoliceAndStartRobbery(house)
     -- Check police count
     lib.callback('houserobbery:getPoliceCount', false, function(policeCount)
         if policeCount < Config.PoliceRequired then
@@ -142,14 +154,14 @@ function startRobbery(house)
         lib.hideTextUI()
         
         -- Remove required item
-        if Config.RequiredItem then
+        if Config.RequiredItem and Config.RequiredItem ~= '' then
             TriggerServerEvent('houserobbery:removeItem', Config.RequiredItem, 1)
         end
         
         -- Show progress bar
         if lib.progressBar({
             duration = Config.RobberyTime,
-            label = 'Raubt ' .. house.name .. ' aus...',
+            label = 'Raubt ' .. tostring(house.name or 'Unbekanntes Haus') .. ' aus...',
             useWhileDead = false,
             canCancel = true,
             disable = {
@@ -184,47 +196,72 @@ function completeRobbery(house)
     -- Generate specific house loot
     local generatedLoot = {}
     
-    -- Add specific loot for this house
-    for _, lootItem in pairs(house.loot) do
-        if lootItem.type == 'specific' and math.random(100) <= lootItem.chance then
-            local amount = math.random(lootItem.amount.min, lootItem.amount.max)
-            table.insert(generatedLoot, {
-                item = lootItem.item,
-                amount = amount,
-                label = Config.LootItems[lootItem.item].name,
-                description = Config.LootItems[lootItem.item].description,
-                rarity = 'specific'
-            })
+    -- Find the house configuration
+    local houseConfig = nil
+    for _, configHouse in pairs(Config.Houses) do
+        if configHouse.id == house.id then
+            houseConfig = configHouse
+            break
         end
     end
     
-    -- Add random loot if enabled
-    if Config.EnableRandomLoot and math.random(100) <= Config.RandomLootChance then
+    -- Add specific loot for this house
+    if houseConfig and houseConfig.loot then
+        for _, lootItem in pairs(houseConfig.loot) do
+            if lootItem.type == 'specific' and math.random(100) <= lootItem.chance then
+                local amount = math.random(lootItem.amount.min, lootItem.amount.max)
+                local itemInfo = Config.LootItems[lootItem.item]
+                if itemInfo then
+                    table.insert(generatedLoot, {
+                        item = lootItem.item,
+                        amount = amount,
+                        label = itemInfo.name,
+                        description = itemInfo.description,
+                        rarity = 'specific'
+                    })
+                end
+            end
+        end
+    end
+    
+-- Add random loot if enabled
+    if Config.EnableRandomLoot and Config.RandomLoot and math.random(100) <= Config.RandomLootChance then
         local randomItemCount = math.random(Config.MinRandomItems, Config.MaxRandomItems)
         local addedRandomItems = 0
         
+        -- Shuffle random loot table to get different items
+        local shuffledLoot = {}
+        for _, item in pairs(Config.RandomLoot) do
+            if item and item.item and item.amount then
+                table.insert(shuffledLoot, item)
+            end
+        end
+        
         for i = 1, randomItemCount do
-            for _, randomLoot in pairs(Config.RandomLoot) do
+            for _, randomLoot in pairs(shuffledLoot) do
                 if addedRandomItems >= randomItemCount then break end
                 
                 if math.random(100) <= randomLoot.chance then
                     local amount = math.random(randomLoot.amount.min, randomLoot.amount.max)
-                    table.insert(generatedLoot, {
-                        item = randomLoot.item,
-                        amount = amount,
-                        label = Config.LootItems[randomLoot.item].name,
-                        description = Config.LootItems[randomLoot.item].description,
-                        rarity = randomLoot.rarity
-                    })
-                    addedRandomItems = addedRandomItems + 1
-                    break -- Verhindert doppelte Items
+                    local itemInfo = Config.LootItems[randomLoot.item]
+                    if itemInfo then
+                        table.insert(generatedLoot, {
+                            item = randomLoot.item,
+                            amount = amount,
+                            label = itemInfo.name,
+                            description = itemInfo.description,
+                            rarity = randomLoot.rarity
+                        })
+                        addedRandomItems = addedRandomItems + 1
+                        break -- Verhindert doppelte Items
+                    end
                 end
             end
         end
     end
     
     if #generatedLoot > 0 then
-        showLootMenu(generatedLoot, house.name)
+        showLootMenu(generatedLoot, tostring(house.name or 'Unbekanntes Haus'))
     else
         lib.notify({
             title = 'Robbery',

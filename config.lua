@@ -3,7 +3,7 @@ Config = {}
 -- Allgemeine Einstellungen
 Config.RobberyTime = 10000 -- Zeit zum Ausrauben in ms (10 Sekunden)
 Config.CooldownTime = 300000 -- Cooldown zwischen Raubüberfällen in ms (5 Minuten)
-Config.RequiredItem = 'lockpick' -- Item das benötigt wird für den Raub (optional)
+Config.RequiredItem = 'WEAPON_CROWBAR' -- Item das benötigt wird für den Raub (nil oder '' = kein Item benötigt)
 Config.PoliceRequired = 0 -- Mindestanzahl Polizisten online
 
 -- Loot Einstellungen
@@ -17,7 +17,7 @@ Config.Houses = {
     {
         id = 'house_1',
         name = 'Grove Street Haus',
-        coords = vector3(-9.96, -1438.54, 31.1),
+        coords = vector3(-14.23, -1442.19, 31.10),
         size = vector3(2.0, 2.0, 2.0),
         rotation = 45.0,
         robbable = true,
