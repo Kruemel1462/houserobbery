@@ -50,7 +50,7 @@ CreateThread(function()
         return
     end
     
-    print('[HouseRobbery] Loading ' .. #Config.Houses .. ' houses...')
+    -- print('[HouseRobbery] Loading ' .. #Config.Houses .. ' houses...')
     
     for _, house in pairs(Config.Houses) do
         if house and house.id and house.coords then
@@ -59,7 +59,7 @@ CreateThread(function()
             if Config.ShowBlips then
                 createHouseBlip(house)
             end
-            print('[HouseRobbery] Loaded house: ' .. tostring(house.id))
+            -- print('[HouseRobbery] Loaded house: ' .. tostring(house.id))
         else
             print('[HouseRobbery] ERROR: Invalid house configuration!')
         end
