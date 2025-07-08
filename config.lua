@@ -111,7 +111,7 @@ Config.LootItems = {
 }
 
 -- Blip Einstellungen
-Config.ShowBlips = true
+Config.ShowBlips = false
 Config.BlipSettings = {
     sprite = 40,
     color = 1,
@@ -123,7 +123,7 @@ Config.BlipSettings = {
 Config.DispatchBlip = {
     radius = 150.0,   -- Radius des Bereichs in dem der Raub vermutet wird
     duration = 60000, -- Wie lange der Dispatch Blip angezeigt wird (in ms)
-    offset = 30.0     -- Maximale zufällige Abweichung vom eigentlichen Tatort
+    offset = 100.0     -- Maximale zufällige Abweichung vom eigentlichen Tatort
 }
 
 -- Discord Webhook (optional)
