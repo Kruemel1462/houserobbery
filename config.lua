@@ -119,5 +119,11 @@ Config.BlipSettings = {
     name = 'Ausraubbares Haus'
 }
 
+-- Einstellungen für den Polizei Dispatch Blip
+Config.DispatchBlip = {
+    radius = 150.0,   -- Radius des Bereichs in dem der Raub vermutet wird
+    duration = 60000  -- Wie lange der Dispatch Blip angezeigt wird (in ms)
+}
+
 -- Discord Webhook (optional)
 Config.DiscordWebhook = nil -- "https://discord.com/api/webhooks/YOUR_WEBHOOK_URL"

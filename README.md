@@ -71,6 +71,16 @@ In `config.lua` den Webhook URL eintragen:
 Config.DiscordWebhook = "https://discord.com/api/webhooks/YOUR_WEBHOOK_URL"
 ```
 
+### Polizei Dispatch Blip
+Passe Radius und Dauer des Polizei-Blips in `config.lua` an:
+
+```lua
+Config.DispatchBlip = {
+    radius = 150.0,
+    duration = 60000
+}
+```
+
 ## 🎮 Verwendung
 
 ### Für Spieler:

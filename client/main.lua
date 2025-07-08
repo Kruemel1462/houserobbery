@@ -348,6 +348,16 @@ RegisterNetEvent('houserobbery:policeDispatch')
 AddEventHandler('houserobbery:policeDispatch', function(coords)
     if not PlayerData.job or PlayerData.job.name ~= 'police' then return end
 
+    lib.notify({
+        title = 'Einsatz',
+        description = 'Ein möglicher Hausraub wurde gemeldet!',
+        type = 'warning'
+    })
+
+    local radiusBlip = AddBlipForRadius(coords.x, coords.y, coords.z, Config.DispatchBlip.radius)
+    SetBlipColour(radiusBlip, 1)
+    SetBlipAlpha(radiusBlip, 80)
+
     local blip = AddBlipForCoord(coords.x, coords.y, coords.z)
     SetBlipSprite(blip, 161)
     SetBlipScale(blip, 1.2)
@@ -356,8 +366,9 @@ AddEventHandler('houserobbery:policeDispatch', function(coords)
     AddTextComponentString('Verdächtige Aktivität')
     EndTextCommandSetBlipName(blip)
 
-    SetTimeout(60000, function()
+    SetTimeout(Config.DispatchBlip.duration, function()
         RemoveBlip(blip)
+        RemoveBlip(radiusBlip)
     end)
 end)
 
