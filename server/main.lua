@@ -173,9 +173,10 @@ end)
 -- Notify police with approximate robbery location
 RegisterNetEvent('houserobbery:notifyPolice')
 AddEventHandler('houserobbery:notifyPolice', function(coords)
+    local range = Config.DispatchBlip.offset or 30.0
     local offset = vector3(
-        coords.x + math.random(-30, 30),
-        coords.y + math.random(-30, 30),
+        coords.x + math.random(-range, range),
+        coords.y + math.random(-range, range),
         coords.z
     )
 
