@@ -351,7 +351,8 @@ AddEventHandler('houserobbery:policeDispatch', function(coords)
     lib.notify({
         title = 'Verdächtige Handlungen',
         description = 'Eine auffällige Person wurde gemeldet !',
-        type = 'warning'
+        type = 'warning',
+        duration = 5000
     })
 
     local radiusBlip = AddBlipForRadius(coords.x, coords.y, coords.z, Config.DispatchBlip.radius)

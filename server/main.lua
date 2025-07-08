@@ -42,7 +42,7 @@ function LoadRobbedHouses()
             local remaining = (expire - os.time()) * 1000
             SetTimeout(remaining, function()
                 robbedHouses[id] = nil
-                TriggerClientEvent('houserobbery:houseReset', -1, id)
+                -- TriggerClientEvent('houserobbery:houseReset', -1, id)
                 SaveRobbedHouses()
             end)
         end
@@ -234,7 +234,7 @@ AddEventHandler('houserobbery:completeRobbery', function(houseId)
     -- Set timer to reset house
     SetTimeout(Config.CooldownTime, function()
         robbedHouses[houseId] = nil
-        TriggerClientEvent('houserobbery:houseReset', -1, houseId)
+        -- TriggerClientEvent('houserobbery:houseReset', -1, houseId)
         SaveRobbedHouses()
     end)
     
@@ -332,7 +332,7 @@ RegisterCommand('resethouse', function(source, args, rawCommand)
         if args[1] then
             local houseId = args[1]
             robbedHouses[houseId] = nil
-            TriggerClientEvent('houserobbery:houseReset', -1, houseId)
+            -- TriggerClientEvent('houserobbery:houseReset', -1, houseId)
             SaveRobbedHouses()
             
             if source == 0 then
