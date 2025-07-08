@@ -121,8 +121,8 @@ Config.BlipSettings = {
 
 -- Einstellungen für den Polizei Dispatch Blip
 Config.DispatchBlip = {
-    radius = 150.0,   -- Radius des Bereichs in dem der Raub vermutet wird
-    duration = 60000, -- Wie lange der Dispatch Blip angezeigt wird (in ms)
+    radius = 100.0,   -- Radius des Bereichs in dem der Raub vermutet wird
+    duration = 300000, -- Wie lange der Dispatch Blip angezeigt wird (in ms)
     offset = 100.0     -- Maximale zufällige Abweichung vom eigentlichen Tatort
 }
 
