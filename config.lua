@@ -1,13 +1,13 @@
 Config = {}
 
 -- Allgemeine Einstellungen
-Config.RobberyTime = 10000 -- Zeit zum Ausrauben in ms (10 Sekunden)
+Config.RobberyTime = 60000 -- Zeit zum Ausrauben in ms (10 Sekunden)
 Config.CooldownTime = 300000 -- Cooldown zwischen Raubüberfällen in ms (5 Minuten)
 Config.RequiredItem = 'WEAPON_CROWBAR' -- Item das benötigt wird für den Raub (nil oder '' = kein Item benötigt)
 Config.PoliceRequired = 0 -- Mindestanzahl Polizisten online
 
 -- Loot Einstellungen
-Config.EnableRandomLoot = true -- Aktiviert globalen Random-Loot
+Config.EnableRandomLoot = false -- Aktiviert globalen Random-Loot
 Config.MinRandomItems = 1 -- Mindestanzahl Random Items pro Raub
 Config.MaxRandomItems = 3 -- Maximale Anzahl Random Items pro Raub
 Config.RandomLootChance = 60 -- Chance in % dass Random-Loot spawnt
@@ -46,6 +46,21 @@ Config.Houses = {
     },
     {
         id = 'house_3',
+        name = 'Harmony Trailer 1',
+        coords = vector3(403.85, 2584.48, 43.52),
+        size = vector3(3.0, 3.0, 3.0),
+        rotation = 0.0,
+        robbable = true,
+        loot = {
+            -- Spezifischer Loot für diese Villa (hochwertige Items)
+            {item = 'money', amount = {min = 200, max = 1000}, chance = 70, type = 'specific'},
+            {item = 'ammo-9', amount = {min = 1, max = 10}, chance = 40, type = 'specific'}
+           -- {item = 'rolex', amount = {min = 1, max = 1}, chance = 10, type = 'specific'},
+           -- {item = 'painting', amount = {min = 1, max = 1}, chance = 8, type = 'specific'} -- Exklusiv für Villa
+        }
+    },
+    {
+        id = 'house_4',
         name = 'Del Perro Apartment',
         coords = vector3(-1447.06, -538.28, 34.74),
         size = vector3(2.5, 2.5, 2.5),
@@ -56,6 +71,18 @@ Config.Houses = {
             {item = 'money', amount = {min = 150, max = 750}, chance = 85, type = 'specific'},
             {item = 'tablet', amount = {min = 1, max = 1}, chance = 35, type = 'specific'},
             {item = 'documents', amount = {min = 1, max = 1}, chance = 15, type = 'specific'} -- Exklusiv für Apartment
+        }
+    },
+    {
+        id = 'house_5',
+        name = 'Test Haus',
+        coords = vector3(-1.95, -1442.38, 30.96),
+        size = vector3(2.5, 2.5, 2.5),
+        rotation = 25.0,
+        robbable = true,
+        loot = {
+            -- Spezifischer Loot für dieses Apartment
+            {item = 'money', amount = {min = 150, max = 750}, chance = 85, type = 'specific'}
         }
     }
 }

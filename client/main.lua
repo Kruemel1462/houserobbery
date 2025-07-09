@@ -116,7 +116,17 @@ function startRobbery(house)
                 lib.notify({
                     title = 'Robbery',
                     description = 'Du benötigst einen ' .. tostring(Config.RequiredItem) .. ' um dieses Haus auszurauben!',
-                    type = 'error'
+                    type = 'error',
+                    style = {
+                    borderRadius = 16,
+                    backgroundColor = 'black',
+                    color = 'white',
+                    border = '1px solid darkred',
+                    padding = '12px 20px',
+                    fontFamily = 'Inter, sans-serif',
+                    fontSize = '14px',
+                    fontWeight = 'bold',
+                }
                 })
                 return
             end
@@ -138,7 +148,17 @@ function checkPoliceAndStartRobbery(house)
             lib.notify({
                 title = 'Robbery',
                 description = 'Nicht genug Polizisten online! (' .. policeCount .. '/' .. Config.PoliceRequired .. ')',
-                type = 'error'
+                type = 'error',
+                style = {
+                    borderRadius = 16,
+                    backgroundColor = 'black',
+                    color = 'white',
+                    border = '1px solid darkred',
+                    padding = '12px 20px',
+                    fontFamily = 'Inter, sans-serif',
+                    fontSize = '14px',
+                    fontWeight = 'bold',
+                }
             })
             return
         end
@@ -176,7 +196,17 @@ function checkPoliceAndStartRobbery(house)
             lib.notify({
                 title = 'Robbery',
                 description = 'Raub abgebrochen!',
-                type = 'error'
+                type = 'error',
+                style = {
+                    borderRadius = 16,
+                    backgroundColor = 'black',
+                    color = 'white',
+                    border = '1px solid darkred',
+                    padding = '12px 20px',
+                    fontFamily = 'Inter, sans-serif',
+                    fontSize = '14px',
+                    fontWeight = 'bold',
+                }
             })
         end
         
@@ -255,7 +285,17 @@ function completeRobbery(house)
         lib.notify({
             title = 'Robbery',
             description = 'Du hast nichts Wertvolles gefunden!',
-            type = 'info'
+            type = 'info',
+            style = {
+                borderRadius = 16,
+                backgroundColor = 'black',
+                color = 'white',
+                border = '1px solid darkgreen',
+                padding = '12px 20px',
+                fontFamily = 'Inter, sans-serif',
+                fontSize = '14px',
+                fontWeight = 'bold',
+            }
         })
     end
     
@@ -305,7 +345,17 @@ function showLootMenu(loot, houseName)
                 lib.notify({
                     title = 'Loot erhalten',
                     description = 'Du hast ' .. item.amount .. 'x ' .. item.label .. ' erhalten!',
-                    type = 'success'
+                    type = 'success',
+                    style = {
+                        borderRadius = 16,
+                        backgroundColor = 'black',
+                        color = 'white',
+                        border = '1px solid darkgreen',
+                        padding = '12px 20px',
+                        fontFamily = 'Inter, sans-serif',
+                        fontSize = '14px',
+                        fontWeight = 'bold',
+                    }
                 })
             end
         })
@@ -324,7 +374,17 @@ function showLootMenu(loot, houseName)
             lib.notify({
                 title = 'Loot erhalten',
                 description = 'Du hast alle Gegenstände genommen!',
-                type = 'success'
+                type = 'success',
+                style = {
+                    borderRadius = 16,
+                    backgroundColor = 'black',
+                    color = 'white',
+                    border = '1px solid darkgreen',
+                    padding = '12px 20px',
+                    fontFamily = 'Inter, sans-serif',
+                    fontSize = '14px',
+                    fontWeight = 'bold',
+                }
             })
         end
     })
@@ -352,7 +412,17 @@ AddEventHandler('houserobbery:policeDispatch', function(coords)
         title = 'Verdächtige Handlungen',
         description = 'Eine auffällige Person wurde gemeldet !',
         type = 'warning',
-        duration = 5000
+        duration = 5000,
+        style = {
+            borderRadius = 16,
+            backgroundColor = 'black',
+            color = 'white',
+            border = '1px solid darkred',
+            padding = '12px 20px',
+            fontFamily = 'Inter, sans-serif',
+            fontSize = '14px',
+            fontWeight = 'bold',
+        }
     })
 
     local radiusBlip = AddBlipForRadius(coords.x, coords.y, coords.z, Config.DispatchBlip.radius)
@@ -380,7 +450,17 @@ AddEventHandler('houserobbery:houseReset', function(houseId)
     lib.notify({
         title = 'System',
         description = 'Ein Haus ist wieder ausraubbar!',
-        type = 'info'
+        type = 'info',
+        style = {
+            borderRadius = 16,
+            backgroundColor = 'black',
+            color = 'white',
+            border = '1px solid darkgreen',
+            padding = '12px 20px',
+            fontFamily = 'Inter, sans-serif',
+            fontSize = '14px',
+            fontWeight = 'bold',
+        }
     })
 end)
 
