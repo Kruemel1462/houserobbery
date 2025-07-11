@@ -448,7 +448,6 @@ AddEventHandler('houserobbery:policeDispatch', function(coords)
     -- EndTextCommandSetBlipName(blip)
 
     SetTimeout(Config.DispatchBlip.duration, function()
-        RemoveBlip(blip)
         RemoveBlip(radiusBlip)
     end)
 end)

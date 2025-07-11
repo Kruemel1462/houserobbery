@@ -112,15 +112,18 @@ function GetPoliceCount()
     local players = GetPlayers()
     
     for _, playerId in pairs(players) do
-        local player = GetPlayer(playerId)
-        if player then
-            if Framework == 'esx' then
-                if player.job and player.job.name == 'police' then
-                    count = count + 1
-                end
-            elseif Framework == 'qb' then
-                if player.PlayerData.job and player.PlayerData.job.name == 'police' then
-                    count = count + 1
+        local playerIdNum = tonumber(playerId)
+        if playerIdNum then
+            local player = GetPlayer(playerIdNum)
+            if player then
+                if Framework == 'esx' then
+                    if player.job and player.job.name == 'police' then
+                        count = count + 1
+                    end
+                elseif Framework == 'qb' then
+                    if player.PlayerData.job and player.PlayerData.job.name == 'police' then
+                        count = count + 1
+                    end
                 end
             end
         end
@@ -199,7 +202,10 @@ AddEventHandler('houserobbery:notifyPolice', function(coords)
     )
 
     for _, playerId in pairs(GetPlayers()) do
-        local player = GetPlayer(playerId)
+        local playerIdNum = tonumber(playerId)
+        if not playerIdNum then goto continue end
+        
+        local player = GetPlayer(playerIdNum)
         if player then
             local jobName
             if Framework == 'esx' and player.job then
@@ -209,9 +215,10 @@ AddEventHandler('houserobbery:notifyPolice', function(coords)
             end
 
             if jobName == 'police' then
-                TriggerClientEvent('houserobbery:policeDispatch', playerId, offset)
+                TriggerClientEvent('houserobbery:policeDispatch', playerIdNum, offset)
             end
         end
+        ::continue::
     end
 end)
 
