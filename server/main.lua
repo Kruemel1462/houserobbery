@@ -222,6 +222,37 @@ AddEventHandler('houserobbery:notifyPolice', function(coords)
     end
 end)
 
+-- Notify police about cancelled robbery attempt
+RegisterNetEvent('houserobbery:notifyPoliceCancelled')
+AddEventHandler('houserobbery:notifyPoliceCancelled', function(coords)
+    local range = Config.DispatchBlip.offset or 30.0
+    local offset = vector3(
+        coords.x + math.random(-range, range),
+        coords.y + math.random(-range, range),
+        coords.z
+    )
+
+    for _, playerId in pairs(GetPlayers()) do
+        local playerIdNum = tonumber(playerId)
+        if not playerIdNum then goto continue end
+        
+        local player = GetPlayer(playerIdNum)
+        if player then
+            local jobName
+            if Framework == 'esx' and player.job then
+                jobName = player.job.name
+            elseif Framework == 'qb' and player.PlayerData.job then
+                jobName = player.PlayerData.job.name
+            end
+
+            if jobName == 'police' then
+                TriggerClientEvent('houserobbery:policeDispatchCancelled', playerIdNum, offset)
+            end
+        end
+        ::continue::
+    end
+end)
+
 -- Event to complete robbery
 RegisterNetEvent('houserobbery:completeRobbery')
 AddEventHandler('houserobbery:completeRobbery', function(houseId)

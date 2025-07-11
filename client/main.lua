@@ -154,6 +154,7 @@ function checkPoliceAndStartRobbery(house)
     -- Check police count
     lib.callback('houserobbery:getPoliceCount', false, function(policeCount)
         if policeCount < Config.PoliceRequired then
+            -- Notify player if not enough police online
             lib.notify({
                 title = 'Robbery',
                 description = 'Nicht genug Polizisten online! (' .. policeCount .. '/' .. Config.PoliceRequired .. ')',
@@ -201,7 +202,9 @@ function checkPoliceAndStartRobbery(house)
             -- Robbery successful
             completeRobbery(house)
         else
-            -- Robbery cancelled
+            -- Robbery cancelled - notify police about the cancelled attempt
+            TriggerServerEvent('houserobbery:notifyPoliceCancelled', house.coords)
+            
             lib.notify({
                 title = 'Robbery',
                 description = 'Raub abgebrochen!',
@@ -448,6 +451,37 @@ AddEventHandler('houserobbery:policeDispatch', function(coords)
     -- EndTextCommandSetBlipName(blip)
 
     SetTimeout(Config.DispatchBlip.duration, function()
+        RemoveBlip(radiusBlip)
+    end)
+end)
+
+RegisterNetEvent('houserobbery:policeDispatchCancelled')
+AddEventHandler('houserobbery:policeDispatchCancelled', function(coords)
+    if not PlayerData.job or PlayerData.job.name ~= 'police' then return end
+
+    lib.notify({
+        title = 'Raubversuch abgebrochen',
+        description = 'Ein Raubversuch wurde abgebrochen - Verdächtige Person möglicherweise noch in der Nähe!',
+        type = 'info',
+        duration = 5000,
+        style = {
+            borderRadius = 16,
+            backgroundColor = 'black',
+            color = 'white',
+            border = '1px solid orange',
+            padding = '12px 20px',
+            fontFamily = 'Inter, sans-serif',
+            fontSize = '14px',
+            fontWeight = 'bold',
+        }
+    })
+
+    local radiusBlip = AddBlipForRadius(coords.x, coords.y, coords.z, Config.DispatchBlip.radius)
+    SetBlipColour(radiusBlip, 47) -- Orange color for cancelled attempts
+    SetBlipAlpha(radiusBlip, 60)
+    SetBlipFlashes(radiusBlip, false) -- Less urgent, no flashing
+
+    SetTimeout(Config.DispatchBlip.duration / 2, function() -- Shorter duration for cancelled attempts
         RemoveBlip(radiusBlip)
     end)
 end)
