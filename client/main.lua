@@ -113,9 +113,18 @@ function startRobbery(house)
     if Config.RequiredItem and Config.RequiredItem ~= '' then
         lib.callback('houserobbery:hasRequiredItem', false, function(hasItem)
             if not hasItem then
+                -- Get item label from ox_inventory
+                local itemLabel = Config.RequiredItem
+                if GetResourceState('ox_inventory') == 'started' then
+                    local itemData = exports.ox_inventory:Items(Config.RequiredItem)
+                    if itemData and itemData.label then
+                        itemLabel = itemData.label
+                    end
+                end
+                
                 lib.notify({
                     title = 'Robbery',
-                    description = 'Du benötigst einen ' .. tostring(Config.RequiredItem) .. ' um dieses Haus auszurauben!',
+                    description = 'Du benötigst eine/en ' .. itemLabel .. ' um dieses Haus auszurauben!',
                     type = 'error',
                     style = {
                     borderRadius = 16,

@@ -163,6 +163,24 @@ lib.callback.register('houserobbery:hasRequiredItem', function(source, item)
     return false
 end)
 
+-- Callback to check if house can be robbed
+lib.callback.register('houserobbery:canRobHouse', function(source, houseId)
+    -- Check if house exists in config
+    local house = houseMap[houseId]
+    if not house then
+        return false, 'Haus nicht gefunden!'
+    end
+    
+    -- Check if house is already robbed
+    if robbedHouses[houseId] and robbedHouses[houseId] > os.time() then
+        local remainingTime = robbedHouses[houseId] - os.time()
+        local minutes = math.ceil(remainingTime / 60)
+        return false, 'Dieses Haus wurde bereits ausgeraubt! Verfügbar in ' .. minutes .. ' Minuten.'
+    end
+    
+    return true, nil
+end)
+
 -- Event to get robbed houses
 RegisterNetEvent('houserobbery:getRobbedHouses')
 AddEventHandler('houserobbery:getRobbedHouses', function()
@@ -216,9 +234,11 @@ AddEventHandler('houserobbery:completeRobbery', function(houseId)
     
     -- Check if house is already robbed
     if robbedHouses[houseId] and robbedHouses[houseId] > os.time() then
+        local remainingTime = robbedHouses[houseId] - os.time()
+        local minutes = math.ceil(remainingTime / 60)
         TriggerClientEvent('ox_lib:notify', source, {
             title = 'Robbery',
-            description = 'Dieses Haus wurde bereits ausgeraubt!',
+            description = 'Dieses Haus wurde bereits ausgeraubt! Verfügbar in ' .. minutes .. ' Minuten.',
             type = 'error'
         })
         return
